@@ -307,6 +307,7 @@
             .creator-card { width: 120px; height: 120px; }
             .chat-widget { width: 90vw; height: 70vh; right: 5vw; bottom: 80px; }
             .co-host-fab { bottom: 20px; right: 20px; }
+            .hero-background-text span { font-size: 12vw; }
         }
     </style>
 </head>
@@ -412,7 +413,7 @@
                 <li><a href="#" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8A3.6 3.6 0 0 0 20 16.4V7.6A3.6 3.6 0 0 0 16.4 4H7.6zm5.2 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm4-3a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z"/></svg></a></li>
                 <li><a href="#" aria-label="YouTube"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.582 7.644a2.448 2.448 0 0 0-1.732-1.732C18.25 5.5 12 5.5 12 5.5s-6.25 0-7.85.412a2.448 2.448 0 0 0-1.732 1.732C2 9.244 2 12 2 12s0 2.756.418 4.356a2.448 2.448 0 0 0 1.732 1.732C5.75 18.5 12 18.5 12 18.5s6.25 0 7.85-.412a2.448 2.448 0 0 0 1.732-1.732C22 14.756 22 12 22 12s0-2.756-.418-4.356zM9.75 14.85V9.15l5.25 2.85z"/></svg></a></li>
             </ul>
-            <p>&copy; 2024 SAUTI HUB. All Rights Reserved.</p>
+            <p>&copy; 2025 SAUTI HUB. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -534,22 +535,21 @@
         }
         
         const backgroundTextContainer = document.getElementById('hero-background-text');
-        if (window.innerWidth > 768) { 
-            for(let i = 0; i < 10; i++) {
-                const span = document.createElement('span');
-                span.textContent = "SAUTI HUB";
-                span.style.top = `${Math.random() * 100}%`;
-                span.style.animationDuration = `${Math.random() * 40 + 40}s`;
-                span.style.animationDelay = `-${Math.random() * 80}s`;
-                if(i % 2 == 0) {
-                    span.style.animationName = 'drift-reverse';
-                }
-                backgroundTextContainer.appendChild(span);
+        const textCount = window.innerWidth < 768 ? 4 : 10; // Fewer elements on mobile
+        for(let i = 0; i < textCount; i++) {
+            const span = document.createElement('span');
+            span.textContent = "SAUTI HUB";
+            span.style.top = `${Math.random() * 100}%`;
+            span.style.animationDuration = `${Math.random() * 40 + 40}s`;
+            span.style.animationDelay = `-${Math.random() * 80}s`;
+            if(i % 2 == 0) {
+                span.style.animationName = 'drift-reverse';
             }
-            const style = document.createElement('style');
-            style.innerHTML = `@keyframes drift-reverse { from { transform: translateX(100%); } to { transform: translateX(-100%); } }`;
-            document.head.appendChild(style);
+            backgroundTextContainer.appendChild(span);
         }
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes drift-reverse { from { transform: translateX(100%); } to { transform: translateX(-100%); } }`;
+        document.head.appendChild(style);
 
 
         const previewData = [
