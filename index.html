@@ -37,14 +37,32 @@
         .preloader.loaded { opacity: 0; visibility: hidden; }
         .preloader-logo {
             animation: pulse-loader 2s infinite ease-in-out;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
         }
         .preloader-logo img {
             width: 150px;
             height: auto;
+            display: block;
+        }
+        .preloader-logo::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer-effect 2.5s infinite;
         }
         @keyframes pulse-loader {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        @keyframes shimmer-effect {
+            0% { transform: translateX(0) skewX(-20deg); }
+            100% { transform: translateX(250%) skewX(-20deg); }
         }
         #bg-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -428,9 +446,24 @@
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         const preloader = document.querySelector('.preloader');
-        window.addEventListener('load', () => {
-            preloader.classList.add('loaded');
-        });
+        const minDisplayTime = 6000; // 6 seconds
+        const startTime = Date.now();
+
+        function hidePreloader() {
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = minDisplayTime - elapsedTime;
+
+            if (remainingTime > 0) {
+                setTimeout(() => {
+                    preloader.classList.add('loaded');
+                }, remainingTime);
+            } else {
+                preloader.classList.add('loaded');
+            }
+        }
+
+        window.addEventListener('load', hidePreloader);
+
 
         const heroTitle = document.querySelector('.hero h1');
         const originalHTML = heroTitle.innerHTML;
@@ -500,9 +533,8 @@
             stars.forEach(star => { star.update(); star.draw(); });
         }
         
-        // Drifting Text Background
         const backgroundTextContainer = document.getElementById('hero-background-text');
-        if (window.innerWidth > 768) { // Only run on desktop
+        if (window.innerWidth > 768) { 
             for(let i = 0; i < 10; i++) {
                 const span = document.createElement('span');
                 span.textContent = "SAUTI HUB";
