@@ -36,12 +36,15 @@
         }
         .preloader.loaded { opacity: 0; visibility: hidden; }
         .preloader-logo {
-            font-family: 'Playfair Display', serif; font-size: 3em; color: var(--golden-brown);
-            text-shadow: var(--gold-glow); animation: pulse-loader 2s infinite ease-in-out;
+            animation: pulse-loader 2s infinite ease-in-out;
+        }
+        .preloader-logo img {
+            width: 150px;
+            height: auto;
         }
         @keyframes pulse-loader {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
         #bg-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -54,10 +57,13 @@
         .main-header {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
             background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(12px);
-            padding: 20px 0; border-bottom: 1px solid rgba(167, 117, 0, 0.2);
+            padding: 15px 0; border-bottom: 1px solid rgba(167, 117, 0, 0.2);
             transition: top 0.3s;
         }
-        .logo { font-size: 2em; font-family: 'Playfair Display', serif; }
+        .logo img {
+            height: 50px;
+            width: auto;
+        }
         .main-header .container { display: flex; justify-content: space-between; align-items: center; }
         .main-nav ul { list-style: none; display: flex; gap: 35px; }
         .main-nav a {
@@ -95,6 +101,26 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
+        }
+        
+        .hero-background-text {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .hero-background-text span {
+            position: absolute;
+            font-size: 8vw;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            animation: drift 60s linear infinite;
+        }
+        @keyframes drift {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
         }
         
         .hero-content { z-index: 2; padding: 0 15px; }
@@ -150,9 +176,18 @@
         .preview-card img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
         .preview-card-info h4 { font-family: 'Poppins'; font-size: 1em; color: var(--white); }
         .preview-card-info p { font-size: 0.8em; color: #aaa; }
-        .preview-display { width: 60%; background-size: cover; background-position: center; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; justify-content: flex-end; position: relative; overflow: hidden; }
-        .preview-display::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
-        .preview-display-content { position: relative; z-index: 2; }
+        .preview-display { width: 60%; display: flex; flex-direction: column; justify-content: space-between; }
+        .preview-video-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+        .preview-video-container iframe { width: 100%; height: 100%; border: none; }
+        .preview-display-content { text-align: left; }
         .preview-display-content h3 { font-size: 2.5em; margin-bottom: 10px; }
         .preview-display-content p { font-size: 1em; margin-bottom: 20px; }
         .preview-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -195,7 +230,7 @@
         .ai-modal.visible .ai-modal-content { transform: scale(1); }
         .ai-modal h3 { font-size: 2em; margin-bottom: 20px; }
         .ai-modal p { line-height: 1.7; margin-bottom: 30px; }
-        .ai-modal-close {
+        .modal-close-btn {
             background: var(--orange); color: white; border: none; padding: 12px 30px;
             border-radius: 50px; font-weight: bold;
         }
@@ -236,16 +271,15 @@
         #chat-input { flex-grow: 1; background: #222; border: 1px solid #444; border-radius: 50px; padding: 10px 15px; color: var(--white); }
         #chat-send { background: var(--green); border: none; border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; }
 
-        /* --- Mobile Responsiveness --- */
         @media (max-width: 992px) {
             .app-preview-container { flex-direction: column; }
             .preview-list, .preview-display { width: 100%; }
-            .preview-display { height: 400px; }
+            .preview-display { height: auto; }
         }
         @media (max-width: 768px) {
             .hero h1 { font-size: 3em; }
             .hero p { font-size: 1em; }
-            .hero::before { animation: none; } /* Disable Ken Burns on mobile */
+            .hero::before { animation: none; }
             .section { padding: 80px 0; }
             .section-title { font-size: 2.2em; margin-bottom: 40px; }
             .main-header .container { flex-direction: column; gap: 15px; }
@@ -259,13 +293,13 @@
     </style>
 </head>
 <body>
-    <div class="preloader"><div class="preloader-logo">SAUTI HUB</div></div>
+    <div class="preloader"><div class="preloader-logo"><img src="Logo.jpg" alt="SAUTI HUB Logo"></div></div>
 
     <canvas id="bg-canvas"></canvas>
 
     <header class="main-header">
         <div class="container">
-            <div class="logo gold-text">SAUTI HUB</div>
+            <div class="logo"><img src="Logo.jpg" alt="SAUTI HUB Logo"></div>
             <nav class="main-nav">
                 <ul>
                     <li><a href="#hero">Home</a></li>
@@ -279,6 +313,7 @@
     </header>
 
     <section id="hero" class="hero">
+        <div class="hero-background-text" id="hero-background-text"></div>
         <div class="hero-content">
             <h1><span class="gold-text">Feel The Sound.</span><br>Live The Story.</h1>
             <p>The definitive podcast universe, celebrating the voices of Kenya. Discover, connect, and immerse yourself in stories that matter, powered by next-generation AI.</p>
@@ -318,6 +353,9 @@
             <div class="app-preview-container">
                 <div class="preview-list"></div>
                 <div class="preview-display">
+                    <div class="preview-video-container" id="preview-video-container">
+                        <iframe id="podcast-video-player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
                     <div class="preview-display-content">
                         <h3 id="preview-title"></h3>
                         <p id="preview-author"></p>
@@ -335,10 +373,10 @@
         <div class="container">
             <h2 class="section-title">The Voices of <span class="gold-text">Kenya</span></h2>
             <div class="creators-grid">
-                <div class="creator-card"><img src="https://pbs.twimg.com/profile_images/1542458428230135808/k4xS_S0a_400x400.jpg" alt="Adelle Onyango" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FF4C00/FFFFFF?text=AO';"><div class="creator-name">Adelle Onyango</div></div>
+                <div class="creator-card"><img src="https://pbs.twimg.com/profile_images/1744655639151120384/vQx2sJ41_400x400.jpg" alt="MIC CHEQUE Podcast" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FF4C00/FFFFFF?text=MC';"><div class="creator-name">MIC CHEQUE</div></div>
                 <div class="creator-card"><img src="https://yt3.googleusercontent.com/ytc/AIdro_k9_t0Y-2pT2z-2T3-m_J6a-a-a-a-a-a-a-a-a-a-a/s900-c-k-c0x00ffffff-no-rj" alt="The Sandwich Podcast" onerror="this.onerror=null;this.src='https://placehold.co/150x150/1EAE00/FFFFFF?text=SP';"><div class="creator-name">The Sandwich Podcast</div></div>
-                <div class="creator-card"><img src="https://pbs.twimg.com/profile_images/1498555694760075264/q4J4G2_N_400x400.jpg" alt="The Mics Are Open" onerror="this.onerror=null;this.src='https://placehold.co/150x150/A77500/FFFFFF?text=TMAO';"><div class="creator-name">The Mics Are Open</div></div>
                 <div class="creator-card"><img src="https://i.scdn.co/image/ab6761610000517459a79965a26c4a83c79e64d7" alt="Mantalk.ke" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FFFFFF/000000?text=MT';"><div class="creator-name">Mantalk.ke</div></div>
+                <div class="creator-card"><img src="https://pbs.twimg.com/profile_images/1789901824982495232/y9K_2Z_I_400x400.jpg" alt="Vinnie Baite" onerror="this.onerror=null;this.src='https://placehold.co/150x150/A77500/FFFFFF?text=VB';"><div class="creator-name">Vinnie Baite</div></div>
             </div>
         </div>
     </section>
@@ -364,7 +402,7 @@
         <div class="ai-modal-content">
             <h3 class="gold-text">✨ AI Summary</h3>
             <p id="summary-text">Generating summary...</p>
-            <button class="ai-modal-close">Close</button>
+            <button class="modal-close-btn" id="summary-close-btn">Close</button>
         </div>
     </div>
 
@@ -450,7 +488,7 @@
         }
         function initStars() {
             stars = [];
-            const starCount = window.innerWidth < 768 ? 500 : 1500; // Fewer stars on mobile
+            const starCount = window.innerWidth < 768 ? 500 : 1500;
             for (let i = 0; i < starCount; i++) {
                 stars.push(new Star(Math.random() * bgCanvas.width, Math.random() * bgCanvas.height, Math.random() * 1000, Math.random() * 2));
             }
@@ -461,30 +499,54 @@
             bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
             stars.forEach(star => { star.update(); star.draw(); });
         }
+        
+        // Drifting Text Background
+        const backgroundTextContainer = document.getElementById('hero-background-text');
+        if (window.innerWidth > 768) { // Only run on desktop
+            for(let i = 0; i < 10; i++) {
+                const span = document.createElement('span');
+                span.textContent = "SAUTI HUB";
+                span.style.top = `${Math.random() * 100}%`;
+                span.style.animationDuration = `${Math.random() * 40 + 40}s`;
+                span.style.animationDelay = `-${Math.random() * 80}s`;
+                if(i % 2 == 0) {
+                    span.style.animationName = 'drift-reverse';
+                }
+                backgroundTextContainer.appendChild(span);
+            }
+            const style = document.createElement('style');
+            style.innerHTML = `@keyframes drift-reverse { from { transform: translateX(100%); } to { transform: translateX(-100%); } }`;
+            document.head.appendChild(style);
+        }
+
 
         const previewData = [
-            { id: 0, title: "Legally Clueless", author: "Adelle Onyango", img: "https://pbs.twimg.com/profile_images/1542458428230135808/k4xS_S0a_400x400.jpg" },
-            { id: 1, title: "The Sandwich Podcast", author: "Joan, Kibz, Owen & Nyamita", img: "https://i.scdn.co/image/ab6765630000ba8a398913531b752f7575236683" },
-            { id: 2, title: "The Mics Are Open", author: "G Money, Calvin & Andy Young", img: "https://pbs.twimg.com/profile_images/1498555694760075264/q4J4G2_N_400x400.jpg" },
-            { id: 3, title: "Mantalk.ke", author: "Eli Mwenda & Oscar Koome", img: "https://i.scdn.co/image/ab6761610000517459a79965a26c4a83c79e64d7" }
+            { id: 0, title: "MIC CHEQUE PODCAST", author: "Chep & Rae", img: "pic1.jpg", videoId: "CImS7iVjihw" },
+            { id: 1, title: "The Sandwich Podcast", author: "Joan, Kibz, Owen & Nyamita", img: "pic1.jpg", videoId: "_soUjq0txbY" },
+            { id: 2, title: "Leaves of Knowledge", author: "Vinnie Baite", img: "pic1.jpg", videoId: "RCTb16Sr3zE" },
+            { id: 3, title: "Mantalk.ke", author: "Eli Mwenda & Oscar Koome", img: "pic1.jpg", videoId: "cz6-_k6zH2s" }
         ];
         const previewList = document.querySelector('.preview-list');
-        const previewDisplay = document.querySelector('.preview-display');
+        const previewVideoContainer = document.getElementById('preview-video-container');
+        const previewVideoPlayer = document.getElementById('podcast-video-player');
         const previewTitle = document.getElementById('preview-title');
         const previewAuthor = document.getElementById('preview-author');
         const aiSummaryBtn = document.querySelector('.ai-summary-btn');
+        const playBtn = document.querySelector('.preview-play-btn');
         let currentPodcast = {};
+        let videoTimeout;
 
         function updatePreviewDisplay(id) {
             const item = previewData.find(p => p.id === id);
             currentPodcast = item;
-            previewDisplay.style.backgroundImage = `url(${item.img})`;
             previewTitle.textContent = item.title;
             previewAuthor.textContent = `with ${item.author}`;
             document.querySelectorAll('.preview-card').forEach(card => {
                 card.classList.remove('active');
                 if (parseInt(card.dataset.id) === id) card.classList.add('active');
             });
+            previewVideoContainer.style.display = 'none';
+            previewVideoPlayer.src = '';
         }
         previewData.forEach(item => {
             const card = document.createElement('div');
@@ -495,10 +557,25 @@
             previewList.appendChild(card);
         });
 
+        playBtn.addEventListener('click', () => {
+            clearTimeout(videoTimeout); // Clear any existing timer
+            previewVideoContainer.style.display = 'block';
+            previewVideoContainer.style.opacity = 1;
+            previewVideoPlayer.src = `https://www.youtube.com/embed/${currentPodcast.videoId}?autoplay=1&controls=0&showinfo=0&rel=0&start=0`;
+
+            videoTimeout = setTimeout(() => {
+                previewVideoContainer.style.opacity = 0;
+                setTimeout(() => {
+                    previewVideoContainer.style.display = 'none';
+                    previewVideoPlayer.src = '';
+                }, 500); // Match CSS transition duration
+            }, 10000); // 10 seconds
+        });
+
         // Gemini API Integration
         const summaryModal = document.getElementById('summary-modal');
         const summaryText = document.getElementById('summary-text');
-        const closeModalBtn = document.querySelector('.ai-modal-close');
+        const summaryCloseBtn = document.getElementById('summary-close-btn');
         
         aiSummaryBtn.addEventListener('click', async () => {
             summaryText.textContent = 'Generating summary...';
@@ -531,7 +608,7 @@
             }
         });
 
-        closeModalBtn.addEventListener('click', () => summaryModal.classList.remove('visible'));
+        summaryCloseBtn.addEventListener('click', () => summaryModal.classList.remove('visible'));
         summaryModal.addEventListener('click', (e) => {
             if (e.target === summaryModal) summaryModal.classList.remove('visible');
         });
