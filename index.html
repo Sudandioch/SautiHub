@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAUTI HUB - The Ultimate Podcast Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #000000;
+            --golden-brown: #A77500;
+            --orange: #FF4C00;
+            --green: #1EAE00;
+            --white: #FFFFFF;
+            --dark-bg: #050505;
+            --text-color: #e0e0e0;
+            --gold-glow: 0 0 20px rgba(167, 117, 0, 0.6);
+            --orange-glow: 0 0 20px rgba(255, 76, 0, 0.6);
+            --green-glow: 0 0 20px rgba(30, 174, 0, 0.6);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            overflow-x: hidden;
+            cursor: default;
+        }
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--black); display: flex; justify-content: center;
+            align-items: center; z-index: 10000; transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .preloader.loaded { opacity: 0; visibility: hidden; }
+        .preloader-logo {
+            font-family: 'Playfair Display', serif; font-size: 3em; color: var(--golden-brown);
+            text-shadow: var(--gold-glow); animation: pulse-loader 2s infinite ease-in-out;
+        }
+        @keyframes pulse-loader {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        #bg-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; background-color: #000;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--white); }
+        .gold-text { color: var(--golden-brown); text-shadow: var(--gold-glow); }
+        a, button, .creator-card, .preview-card { cursor: pointer; }
+        .main-header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(12px);
+            padding: 20px 0; border-bottom: 1px solid rgba(167, 117, 0, 0.2);
+            transition: top 0.3s;
+        }
+        .logo { font-size: 2em; font-family: 'Playfair Display', serif; }
+        .main-header .container { display: flex; justify-content: space-between; align-items: center; }
+        .main-nav ul { list-style: none; display: flex; gap: 35px; }
+        .main-nav a {
+            color: var(--text-color); text-decoration: none; font-size: 1em; font-weight: 400;
+            padding: 5px 10px; position: relative; transition: color 0.3s ease;
+        }
+        .main-nav a::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            border-radius: 8px; opacity: 0; transition: opacity 0.3s; z-index: -1;
+        }
+        .main-nav a:hover { color: var(--white); }
+        .main-nav a:hover::before { opacity: 1; }
+        .hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .hero-content { z-index: 2; }
+        .hero h1 { font-size: 5.5em; line-height: 1.1; margin-bottom: 20px; }
+        .hero h1 .char { display: inline-block; opacity: 0; transform: translateY(50px); animation: reveal-char 1s forwards; }
+        @keyframes reveal-char { to { opacity: 1; transform: translateY(0); } }
+        .hero p { font-size: 1.2em; font-weight: 300; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
+        #visualizer-canvas {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 25vh;
+            z-index: 1; opacity: 0.7;
+        }
+        .cta-button {
+            display: inline-block; padding: 18px 40px; font-family: 'Poppins', sans-serif;
+            font-size: 1.2em; font-weight: 600; color: var(--white);
+            background: var(--orange); text-decoration: none; border-radius: 50px;
+            border: none; transition: all 0.4s ease; box-shadow: var(--orange-glow);
+            position: relative;
+        }
+        .cta-button:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 25px rgba(255, 76, 0, 0.7), 0 0 40px rgba(255, 76, 0, 0.5); }
+        .section { padding: 120px 0; text-align: center; }
+        .section-title { font-size: 3.5em; margin-bottom: 80px; opacity: 0; transform: translateY(30px); transition: opacity 0.8s, transform 0.8s; }
+        .section-title.visible { opacity: 1; transform: translateY(0); }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
+        .feature-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f); padding: 40px 30px; border-radius: 15px;
+            border: 1px solid rgba(167, 117, 0, 0.2); transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; transform: translateY(50px);
+            transition: opacity 0.6s, transform 0.6s;
+        }
+        .feature-card.visible { opacity: 1; transform: translateY(0); }
+        .feature-card:hover { transform: translateY(-15px); box-shadow: 0 0 30px rgba(167, 117, 0, 0.4); border-color: rgba(167, 117, 0, 0.6); }
+        .feature-icon { margin-bottom: 20px; color: var(--green); }
+        .feature-icon svg { width: 48px; height: 48px; filter: drop-shadow(var(--green-glow)); transition: transform 0.4s; }
+        .feature-card:hover .feature-icon svg { transform: scale(1.2) rotate(10deg); }
+        .feature-card h3 { font-size: 1.8em; margin-bottom: 15px; color: var(--golden-brown); }
+
+        .vibe-check-section { background: #111; }
+        .ai-prompt-container { display: flex; gap: 10px; max-width: 600px; margin: 0 auto; }
+        #vibe-prompt-input { flex-grow: 1; background: #222; border: 1px solid #444; border-radius: 50px; padding: 15px; color: var(--white); font-family: 'Poppins'; }
+        #vibe-prompt-button { background: var(--golden-brown); border: none; border-radius: 50px; padding: 15px 25px; color: var(--black); font-weight: bold; }
+        .vibe-check-results { margin-top: 40px; display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin-left: auto; margin-right: auto; text-align: left;}
+        .vibe-playlist-card {
+            display: flex; gap: 20px; align-items: center; background: #1a1a1a;
+            padding: 15px; border-radius: 12px; border-left: 4px solid var(--green);
+            opacity: 0; transform: translateY(20px); animation: reveal-char 0.5s forwards;
+        }
+        .vibe-playlist-card img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .vibe-playlist-card h4 { font-family: 'Poppins'; font-size: 1.1em; margin-bottom: 5px; }
+        .vibe-playlist-card p { font-size: 0.9em; line-height: 1.6; color: #bbb; }
+        
+        .preview-section { background: var(--dark-bg); }
+        .app-preview-container { display: flex; background: #000; border-radius: 20px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(167, 117, 0, 0.2); gap: 40px; }
+        .preview-list { width: 40%; display: flex; flex-direction: column; gap: 15px; }
+        .preview-card { display: flex; align-items: center; gap: 15px; padding: 15px; background: #1a1a1a; border-radius: 10px; border: 1px solid transparent; transition: background 0.3s, border-color 0.3s; }
+        .preview-card:hover, .preview-card.active { background: #2a2a2a; border-color: var(--golden-brown); }
+        .preview-card img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .preview-card-info h4 { font-family: 'Poppins'; font-size: 1em; color: var(--white); }
+        .preview-card-info p { font-size: 0.8em; color: #aaa; }
+        .preview-display { width: 60%; background-size: cover; background-position: center; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; justify-content: flex-end; position: relative; overflow: hidden; }
+        .preview-display::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+        .preview-display-content { position: relative; z-index: 2; }
+        .preview-display-content h3 { font-size: 2.5em; margin-bottom: 10px; }
+        .preview-display-content p { font-size: 1em; margin-bottom: 20px; }
+        .preview-buttons { display: flex; gap: 10px; }
+        .preview-play-btn, .ai-summary-btn { display: flex; align-items: center; gap: 10px; color: white; border: none; padding: 12px 20px; border-radius: 50px; font-weight: bold; }
+        .preview-play-btn { background: var(--orange); }
+        .ai-summary-btn { background: var(--green); }
+        .preview-play-btn svg { width: 20px; height: 20px; }
+
+        .creators-section { background: #000; }
+        .creators-grid { display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap; }
+        .creator-card { position: relative; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; border: 3px solid var(--golden-brown); box-shadow: 0 0 20px rgba(167, 117, 0, 0.3); transition: transform 0.4s; }
+        .creator-card:hover { transform: scale(1.1); }
+        .creator-card img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(50%); transition: filter 0.4s; }
+        .creator-card:hover img { filter: grayscale(0%); }
+        .creator-card .creator-name { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.7); color: var(--white); padding: 10px; text-align: center; transform: translateY(100%); transition: transform 0.4s; }
+        .creator-card:hover .creator-name { transform: translateY(0); }
+
+        .main-footer { background-color: var(--black); padding: 60px 0; text-align: center; border-top: 1px solid rgba(167, 117, 0, 0.2); }
+        .footer-content { max-width: 600px; margin: 0 auto; }
+        .social-links { list-style: none; display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
+        .social-links a { color: var(--text-color); font-size: 1.5em; transition: color 0.3s, transform 0.3s; }
+        .social-links a:hover { color: var(--golden-brown); transform: translateY(-5px); }
+        .social-links svg { width: 24px; height: 24px; }
+        .newsletter-form { display: flex; gap: 10px; margin-bottom: 30px; }
+        .newsletter-form input { flex-grow: 1; background: #222; border: 1px solid #444; border-radius: 50px; padding: 15px; color: var(--white); font-family: 'Poppins'; }
+        .newsletter-form button { background: var(--golden-brown); border: none; border-radius: 50px; padding: 15px 25px; color: var(--black); font-weight: bold; }
+        
+        .ai-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10001; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s;
+        }
+        .ai-modal.visible { opacity: 1; visibility: visible; }
+        .ai-modal-content {
+            background: #111; border: 1px solid var(--golden-brown); border-radius: 15px;
+            padding: 40px; max-width: 600px; width: 90%;
+            transform: scale(0.9); transition: transform 0.4s;
+        }
+        .ai-modal.visible .ai-modal-content { transform: scale(1); }
+        .ai-modal h3 { font-size: 2em; margin-bottom: 20px; }
+        .ai-modal p { line-height: 1.7; margin-bottom: 30px; }
+        .ai-modal-close {
+            background: var(--orange); color: white; border: none; padding: 12px 30px;
+            border-radius: 50px; font-weight: bold;
+        }
+
+        /* --- AI Co-Host Chat --- */
+        .co-host-fab {
+            position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+            width: 60px; height: 60px; background: var(--orange);
+            border-radius: 50%; border: none; display: flex;
+            justify-content: center; align-items: center;
+            box-shadow: var(--orange-glow);
+            transform: scale(1); transition: transform 0.3s;
+        }
+        .co-host-fab:hover { transform: scale(1.1); }
+        .co-host-fab svg { width: 30px; height: 30px; color: white; }
+        
+        .chat-widget {
+            position: fixed; bottom: 100px; right: 30px; z-index: 9998;
+            width: 350px; height: 500px; background: #111;
+            border-radius: 15px; border: 1px solid var(--golden-brown);
+            display: flex; flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            opacity: 0; visibility: hidden; transform: translateY(20px);
+            transition: opacity 0.4s, visibility 0.4s, transform 0.4s;
+        }
+        .chat-widget.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+        .chat-header { padding: 15px; border-bottom: 1px solid #333; }
+        .chat-header h3 { font-size: 1.2em; }
+        .chat-body { flex-grow: 1; padding: 15px; overflow-y: auto; }
+        .chat-message { margin-bottom: 15px; max-width: 85%; }
+        .chat-message.user { margin-left: auto; text-align: right; }
+        .chat-message p {
+            padding: 10px 15px; border-radius: 15px;
+            line-height: 1.6;
+        }
+        .chat-message.user p { background: var(--orange); color: white; border-bottom-right-radius: 0; }
+        .chat-message.ai p { background: #333; color: var(--text-color); border-bottom-left-radius: 0; }
+        .chat-footer { padding: 15px; border-top: 1px solid #333; display: flex; gap: 10px; }
+        #chat-input { flex-grow: 1; background: #222; border: 1px solid #444; border-radius: 50px; padding: 10px 15px; color: var(--white); }
+        #chat-send { background: var(--green); border: none; border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; }
+
+        @media (max-width: 992px) {
+            .app-preview-container { flex-direction: column; }
+            .preview-list, .preview-display { width: 100%; }
+            .preview-display { height: 400px; }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3em; }
+            .hero p { font-size: 1em; }
+            .section-title { font-size: 2.5em; }
+            .main-header .container { flex-direction: column; gap: 15px; }
+            .chat-widget { width: 90vw; height: 70vh; right: 5vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="preloader"><div class="preloader-logo">SAUTI HUB</div></div>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo gold-text">SAUTI HUB</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#vibe-check">Vibe Check</a></li>
+                    <li><a href="#preview">Preview</a></li>
+                    <li><a href="#creators">Voices of Kenya</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <h1><span class="gold-text">Feel The Sound.</span><br>Live The Story.</h1>
+            <p>The definitive podcast universe, celebrating the voices of Kenya. Discover, connect, and immerse yourself in stories that matter, powered by next-generation AI.</p>
+            <button class="cta-button">Enter The Hub</button>
+        </div>
+        <canvas id="visualizer-canvas"></canvas>
+    </section>
+
+    <!-- The rest of the HTML remains the same -->
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">An <span class="gold-text">Unrivaled</span> Experience</h2>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2zM12 4a.8.8 0 0 1 .8.8V19.2a.8.8 0 0 1-1.6 0V4.8A.8.8 0 0 1 12 4zM7 19a2 2 0 0 1-2-2V7a2 2 0 1 1 4 0v10a2 2 0 0 1-2 2zm10-2a2 2 0 0 1-2-2V9a2 2 0 1 1 4 0v8a2 2 0 0 1-2 2z"/></svg></div><h3>Unified Library</h3><p>Access audio and video from all your favorite Kenyan creators in a single, beautifully organized library.</p></div>
+                <div class="feature-card"><div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 0-5 5c0 1.48.65 2.79 1.67 3.71A6.994 6.994 0 0 0 12 22a6.994 6.994 0 0 0 3.33-11.29A4.993 4.993 0 0 0 17 7a5 5 0 0 0-5-5zm0 2c.34 0 .67.04 1 .1A3 3 0 0 1 10 7a3 3 0 0 1-3-3c.1-.33.26-.66.4-1z"/></svg></div><h3>AI-Powered Discovery</h3><p>Our intelligent algorithm helps you discover new Kenyan podcasts tailored to your taste, ensuring endless entertainment.</p></div>
+                <div class="feature-card"><div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div><h3>Creator Community</h3><p>Engage with hosts and fellow fans. Join discussions, share your thoughts, and become part of a thriving community.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="vibe-check" class="section vibe-check-section">
+        <div class="container">
+            <h2 class="section-title">✨ Curate Your <span class="gold-text">Vibe</span></h2>
+            <p style="max-width: 700px; margin: -60px auto 40px; font-weight: 300;">Describe a mood, an activity, or a feeling. Our AI curator will instantly build a personalized playlist of Kenyan podcast episodes just for you.</p>
+            <div class="ai-prompt-container">
+                <input type="text" id="vibe-prompt-input" placeholder="e.g., 'a relaxing sunday morning' or 'my commute to work'">
+                <button id="vibe-prompt-button">Curate Playlist</button>
+            </div>
+            <div class="vibe-check-results" id="vibe-check-results">
+                <!-- AI-generated playlist will appear here -->
+            </div>
+        </div>
+    </section>
+
+    <section id="preview" class="section preview-section">
+        <div class="container">
+            <h2 class="section-title">Preview The <span class="gold-text">Experience</span></h2>
+            <div class="app-preview-container">
+                <div class="preview-list"></div>
+                <div class="preview-display">
+                    <div class="preview-display-content">
+                        <h3 id="preview-title"></h3>
+                        <p id="preview-author"></p>
+                        <div class="preview-buttons">
+                            <button class="preview-play-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg><span>Play</span></button>
+                            <button class="ai-summary-btn">✨ Get AI Summary</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="creators" class="section creators-section">
+        <div class="container">
+            <h2 class="section-title">The Voices of <span class="gold-text">Kenya</span></h2>
+            <div class="creators-grid">
+                <div class="creator-card"><img src="https://pbs.twimg.com/profile_images/1542458428230135808/k4xS_S0a_400x400.jpg" alt="Adelle Onyango" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FF4C00/FFFFFF?text=AO';"><div class="creator-name">Adelle Onyango</div></div>
+                <div class="creator-card"><img src="https://yt3.googleusercontent.com/ytc/AIdro_k9_t0Y-2pT2z-2T3-m_J6a-a-a-a-a-a-a-a-a-a-a/s900-c-k-c0x00ffffff-no-rj" alt="The Sandwich Podcast" onerror="this.onerror=null;this.src='https://placehold.co/150x150/1EAE00/FFFFFF?text=SP';"><div class="creator-name">The Sandwich Podcast</div></div>
+                <div class="creator-card"><img src="https://pbs.twimg.com/profile_images/1498555694760075264/q4J4G2_N_400x400.jpg" alt="The Mics Are Open" onerror="this.onerror=null;this.src='https://placehold.co/150x150/A77500/FFFFFF?text=TMAO';"><div class="creator-name">The Mics Are Open</div></div>
+                <div class="creator-card"><img src="https://i.scdn.co/image/ab6761610000517459a79965a26c4a83c79e64d7" alt="Mantalk.ke" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FFFFFF/000000?text=MT';"><div class="creator-name">Mantalk.ke</div></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container footer-content">
+            <h3>Join The Inner Circle</h3>
+            <p>Get exclusive updates and be the first to know when we launch.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="your.email@example.com" required>
+                <button type="submit">Subscribe</button>
+            </form>
+            <ul class="social-links">
+                <li><a href="#" aria-label="X/Twitter"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></li>
+                <li><a href="#" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8A3.6 3.6 0 0 0 20 16.4V7.6A3.6 3.6 0 0 0 16.4 4H7.6zm5.2 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm4-3a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z"/></svg></a></li>
+                <li><a href="#" aria-label="YouTube"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.582 7.644a2.448 2.448 0 0 0-1.732-1.732C18.25 5.5 12 5.5 12 5.5s-6.25 0-7.85.412a2.448 2.448 0 0 0-1.732 1.732C2 9.244 2 12 2 12s0 2.756.418 4.356a2.448 2.448 0 0 0 1.732 1.732C5.75 18.5 12 18.5 12 18.5s6.25 0 7.85-.412a2.448 2.448 0 0 0 1.732-1.732C22 14.756 22 12 22 12s0-2.756-.418-4.356zM9.75 14.85V9.15l5.25 2.85z"/></svg></a></li>
+            </ul>
+            <p>&copy; 2024 SAUTI HUB. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div class="ai-modal" id="summary-modal">
+        <div class="ai-modal-content">
+            <h3 class="gold-text">✨ AI Summary</h3>
+            <p id="summary-text">Generating summary...</p>
+            <button class="ai-modal-close">Close</button>
+        </div>
+    </div>
+
+    <button class="co-host-fab" id="co-host-fab" aria-label="Open AI Co-Host">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    </button>
+
+    <div class="chat-widget" id="chat-widget">
+        <div class="chat-header">
+            <h3 class="gold-text">AI Co-Host</h3>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="chat-message ai"><p>Karibu! I'm your AI Co-Host. How can I help you find the perfect Kenyan podcast today?</p></div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chat-input" placeholder="Ask me anything...">
+            <button id="chat-send" aria-label="Send Message">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px; color:white;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const preloader = document.querySelector('.preloader');
+        window.addEventListener('load', () => {
+            preloader.classList.add('loaded');
+        });
+
+        const heroTitle = document.querySelector('.hero h1');
+        const originalHTML = heroTitle.innerHTML;
+        heroTitle.innerHTML = '';
+        let i = 0;
+        let charIndex = 0;
+        while (i < originalHTML.length) {
+            if (originalHTML[i] === '<') {
+                const tagEnd = originalHTML.indexOf('>', i);
+                heroTitle.innerHTML += originalHTML.substring(i, tagEnd + 1);
+                i = tagEnd + 1;
+            } else {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.innerHTML = originalHTML[i] === ' ' ? '&nbsp;' : originalHTML[i];
+                span.style.animationDelay = `${charIndex * 0.05}s`;
+                heroTitle.appendChild(span);
+                i++;
+                charIndex++;
+            }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.section-title, .feature-card').forEach(el => observer.observe(el));
+
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+        let stars;
+        let mouse = { x: bgCanvas.width / 2, y: bgCanvas.height / 2 };
+        document.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        class Star {
+            constructor(x, y, z, size) { this.x = x; this.y = y; this.z = z; this.size = size; }
+            update() { this.z -= 0.5; if (this.z < 1) { this.z = bgCanvas.width; } }
+            draw() {
+                const { x, y, z, size } = this;
+                const scale = 1000 / (1000 + z);
+                const screenX = (x - bgCanvas.width / 2) * scale + bgCanvas.width / 2 - (mouse.x - bgCanvas.width / 2) * 0.1;
+                const screenY = (y - bgCanvas.height / 2) * scale + bgCanvas.height / 2 - (mouse.y - bgCanvas.height / 2) * 0.1;
+                const alpha = Math.min(Math.abs(1 - z / bgCanvas.width), 1);
+                bgCtx.beginPath();
+                bgCtx.arc(screenX, screenY, size * scale, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+                bgCtx.fill();
+            }
+        }
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < 1500; i++) {
+                stars.push(new Star(Math.random() * bgCanvas.width, Math.random() * bgCanvas.height, Math.random() * 1000, Math.random() * 2));
+            }
+        }
+        function animateStars() {
+            requestAnimationFrame(animateStars);
+            bgCtx.fillStyle = '#000';
+            bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+            stars.forEach(star => { star.update(); star.draw(); });
+        }
+
+        const visualizerCanvas = document.getElementById('visualizer-canvas');
+        if (visualizerCanvas) {
+            const visCtx = visualizerCanvas.getContext('2d');
+            visualizerCanvas.width = window.innerWidth;
+            visualizerCanvas.height = window.innerHeight * 0.25;
+            let audioContext, analyser, dataArray;
+            
+            function initAudioVisualizer() {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                const oscillator = audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(120, audioContext.currentTime);
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                oscillator.connect(gainNode);
+                gainNode.connect(analyser);
+                oscillator.start(0);
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                renderVisualizerFrame();
+            }
+            function renderVisualizerFrame() {
+                requestAnimationFrame(renderVisualizerFrame);
+                analyser.getByteFrequencyData(dataArray);
+                visCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                const barWidth = (visualizerCanvas.width / analyser.frequencyBinCount) * 2.5;
+                let x = 0;
+                const gradient = visCtx.createLinearGradient(0, 0, 0, visualizerCanvas.height);
+                gradient.addColorStop(0, 'rgba(255, 76, 0, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(167, 117, 0, 0.5)');
+                gradient.addColorStop(1, 'rgba(167, 117, 0, 0)');
+                visCtx.fillStyle = gradient;
+                for (let i = 0; i < analyser.frequencyBinCount; i++) {
+                    const barHeight = dataArray[i] * 0.7;
+                    visCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            initAudioVisualizer();
+        }
+
+        const previewData = [
+            { id: 0, title: "Legally Clueless", author: "Adelle Onyango", img: "https://pbs.twimg.com/profile_images/1542458428230135808/k4xS_S0a_400x400.jpg" },
+            { id: 1, title: "The Sandwich Podcast", author: "Joan, Kibz, Owen & Nyamita", img: "https://i.scdn.co/image/ab6765630000ba8a398913531b752f7575236683" },
+            { id: 2, title: "The Mics Are Open", author: "G Money, Calvin & Andy Young", img: "https://pbs.twimg.com/profile_images/1498555694760075264/q4J4G2_N_400x400.jpg" },
+            { id: 3, title: "Mantalk.ke", author: "Eli Mwenda & Oscar Koome", img: "https://i.scdn.co/image/ab6761610000517459a79965a26c4a83c79e64d7" }
+        ];
+        const previewList = document.querySelector('.preview-list');
+        const previewDisplay = document.querySelector('.preview-display');
+        const previewTitle = document.getElementById('preview-title');
+        const previewAuthor = document.getElementById('preview-author');
+        const aiSummaryBtn = document.querySelector('.ai-summary-btn');
+        let currentPodcast = {};
+
+        function updatePreviewDisplay(id) {
+            const item = previewData.find(p => p.id === id);
+            currentPodcast = item;
+            previewDisplay.style.backgroundImage = `url(${item.img})`;
+            previewTitle.textContent = item.title;
+            previewAuthor.textContent = `with ${item.author}`;
+            document.querySelectorAll('.preview-card').forEach(card => {
+                card.classList.remove('active');
+                if (parseInt(card.dataset.id) === id) card.classList.add('active');
+            });
+        }
+        previewData.forEach(item => {
+            const card = document.createElement('div');
+            card.classList.add('preview-card');
+            card.dataset.id = item.id;
+            card.innerHTML = `<img src="${item.img}" alt="${item.title}" onerror="this.onerror=null;this.src='https://placehold.co/80x80';"><div class="preview-card-info"><h4>${item.title}</h4><p>${item.author}</p></div>`;
+            card.addEventListener('mouseover', () => updatePreviewDisplay(item.id));
+            previewList.appendChild(card);
+        });
+
+        // Gemini API Integration
+        const summaryModal = document.getElementById('summary-modal');
+        const summaryText = document.getElementById('summary-text');
+        const closeModalBtn = document.querySelector('.ai-modal-close');
+        
+        aiSummaryBtn.addEventListener('click', async () => {
+            summaryText.textContent = 'Generating summary...';
+            summaryModal.classList.add('visible');
+            
+            const prompt = `Generate a short, exciting, one-paragraph summary for the latest episode of the Kenyan podcast "${currentPodcast.title}" hosted by ${currentPodcast.author}. Make it sound like a promo.`;
+            
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
+                    summaryText.textContent = result.candidates[0].content.parts[0].text;
+                } else {
+                    summaryText.textContent = "Could not generate a summary at this time. Please try again later.";
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                summaryText.textContent = "An error occurred while fetching the summary.";
+            }
+        });
+
+        closeModalBtn.addEventListener('click', () => summaryModal.classList.remove('visible'));
+        summaryModal.addEventListener('click', (e) => {
+            if (e.target === summaryModal) summaryModal.classList.remove('visible');
+        });
+
+        const vibePromptInput = document.getElementById('vibe-prompt-input');
+        const vibePromptButton = document.getElementById('vibe-prompt-button');
+        const vibeResultsContainer = document.getElementById('vibe-check-results');
+
+        vibePromptButton.addEventListener('click', async () => {
+            const prompt = vibePromptInput.value;
+            if (!prompt) return;
+
+            vibePromptButton.textContent = 'Curating...';
+            vibePromptButton.disabled = true;
+            vibeResultsContainer.innerHTML = '<p>✨ Thinking of the perfect vibe for you...</p>';
+
+            const podcastListForApi = JSON.stringify(previewData.map(p => ({title: p.title, author: p.author})));
+            const apiPrompt = `You are an expert Kenyan podcast curator. A user wants a playlist for the following mood/activity: "${prompt}". From this list of available podcasts: ${podcastListForApi}, select exactly 3 podcasts that best fit this vibe. For each, provide a short, compelling reason why it's a good fit. Respond ONLY with a valid JSON object in this format: { "playlist": [ { "podcastName": "Name of Podcast", "reason": "Your reason here." } ] }`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: apiPrompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
+                    let textResponse = result.candidates[0].content.parts[0].text.replace(/`/g, '').replace('json', '').trim();
+                    const parsedJson = JSON.parse(textResponse);
+                    
+                    vibeResultsContainer.innerHTML = '';
+                    parsedJson.playlist.forEach((item, index) => {
+                        const originalPodcast = previewData.find(p => p.title === item.podcastName);
+                        if (originalPodcast) {
+                            const card = document.createElement('div');
+                            card.className = 'vibe-playlist-card';
+                            card.style.animationDelay = `${index * 0.1}s`;
+                            card.innerHTML = `
+                                <img src="${originalPodcast.img}" alt="${originalPodcast.title}">
+                                <div>
+                                    <h4>${originalPodcast.title}</h4>
+                                    <p>${item.reason}</p>
+                                </div>
+                            `;
+                            vibeResultsContainer.appendChild(card);
+                        }
+                    });
+
+                } else {
+                     vibeResultsContainer.innerHTML = '<p>Could not generate a playlist at this time. Please try another vibe!</p>';
+                }
+            } catch (error) {
+                console.error("Error parsing Gemini response or API call failed:", error);
+                vibeResultsContainer.innerHTML = '<p>An error occurred while curating your vibe. Please try again.</p>';
+            } finally {
+                vibePromptButton.textContent = 'Curate Playlist';
+                vibePromptButton.disabled = false;
+            }
+        });
+
+        // AI Co-Host Chat Logic
+        const coHostFab = document.getElementById('co-host-fab');
+        const chatWidget = document.getElementById('chat-widget');
+        const chatBody = document.getElementById('chat-body');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send');
+        let chatHistory = [];
+
+        coHostFab.addEventListener('click', () => {
+            chatWidget.classList.toggle('visible');
+        });
+
+        const handleChatSend = async () => {
+            const userMessage = chatInput.value;
+            if (!userMessage.trim()) return;
+
+            appendMessage(userMessage, 'user');
+            chatInput.value = '';
+
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+            
+            const aiTypingElement = appendMessage('...', 'ai');
+
+            const apiPrompt = `You are the SAUTI HUB AI Co-Host, a friendly and knowledgeable expert on Kenyan podcasts. Your knowledge base includes: ${JSON.stringify(previewData)}. Keep your answers concise, friendly, and helpful. User's message: "${userMessage}"`;
+            
+            try {
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
+                    const aiMessage = result.candidates[0].content.parts[0].text;
+                    aiTypingElement.querySelector('p').textContent = aiMessage;
+                    chatHistory.push({ role: "model", parts: [{ text: aiMessage }] });
+                } else {
+                    aiTypingElement.querySelector('p').textContent = "I'm having a bit of trouble connecting. Please try again.";
+                }
+            } catch (error) {
+                console.error("Chat API Error:", error);
+                aiTypingElement.querySelector('p').textContent = "Sorry, I can't seem to respond right now.";
+            }
+        };
+
+        chatSendBtn.addEventListener('click', handleChatSend);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChatSend();
+        });
+
+        function appendMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            const p = document.createElement('p');
+            p.textContent = text;
+            messageDiv.appendChild(p);
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return messageDiv;
+        }
+        
+        window.addEventListener('resize', () => { 
+            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; 
+        });
+        
+        initStars();
+        animateStars();
+        updatePreviewDisplay(0);
+    });
+    </script>
+</body>
+</html>
