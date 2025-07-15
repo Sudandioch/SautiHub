@@ -71,19 +71,38 @@
         }
         .main-nav a:hover { color: var(--white); }
         .main-nav a:hover::before { opacity: 1; }
+        
         .hero {
             height: 100vh; display: flex; align-items: center; justify-content: center;
             text-align: center; position: relative; overflow: hidden;
         }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('pic.jpg');
+            background-size: cover;
+            background-position: center;
+            animation: kenburns-effect 25s ease-out infinite;
+            z-index: 0;
+        }
+        .hero::after {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 1;
+            background: radial-gradient(circle, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.8) 100%);
+        }
+        @keyframes kenburns-effect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
         .hero-content { z-index: 2; }
         .hero h1 { font-size: 5.5em; line-height: 1.1; margin-bottom: 20px; }
         .hero h1 .char { display: inline-block; opacity: 0; transform: translateY(50px); animation: reveal-char 1s forwards; }
         @keyframes reveal-char { to { opacity: 1; transform: translateY(0); } }
         .hero p { font-size: 1.2em; font-weight: 300; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
-        #visualizer-canvas {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 25vh;
-            z-index: 1; opacity: 0.7;
-        }
+        
         .cta-button {
             display: inline-block; padding: 18px 40px; font-family: 'Poppins', sans-serif;
             font-size: 1.2em; font-weight: 600; color: var(--white);
@@ -258,7 +277,6 @@
             <p>The definitive podcast universe, celebrating the voices of Kenya. Discover, connect, and immerse yourself in stories that matter, powered by next-generation AI.</p>
             <button class="cta-button">Enter The Hub</button>
         </div>
-        <canvas id="visualizer-canvas"></canvas>
     </section>
 
     <!-- The rest of the HTML remains the same -->
@@ -434,48 +452,6 @@
             bgCtx.fillStyle = '#000';
             bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
             stars.forEach(star => { star.update(); star.draw(); });
-        }
-
-        const visualizerCanvas = document.getElementById('visualizer-canvas');
-        if (visualizerCanvas) {
-            const visCtx = visualizerCanvas.getContext('2d');
-            visualizerCanvas.width = window.innerWidth;
-            visualizerCanvas.height = window.innerHeight * 0.25;
-            let audioContext, analyser, dataArray;
-            
-            function initAudioVisualizer() {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                const oscillator = audioContext.createOscillator();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(120, audioContext.currentTime);
-                const gainNode = audioContext.createGain();
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                oscillator.connect(gainNode);
-                gainNode.connect(analyser);
-                oscillator.start(0);
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                renderVisualizerFrame();
-            }
-            function renderVisualizerFrame() {
-                requestAnimationFrame(renderVisualizerFrame);
-                analyser.getByteFrequencyData(dataArray);
-                visCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                const barWidth = (visualizerCanvas.width / analyser.frequencyBinCount) * 2.5;
-                let x = 0;
-                const gradient = visCtx.createLinearGradient(0, 0, 0, visualizerCanvas.height);
-                gradient.addColorStop(0, 'rgba(255, 76, 0, 0.8)');
-                gradient.addColorStop(0.5, 'rgba(167, 117, 0, 0.5)');
-                gradient.addColorStop(1, 'rgba(167, 117, 0, 0)');
-                visCtx.fillStyle = gradient;
-                for (let i = 0; i < analyser.frequencyBinCount; i++) {
-                    const barHeight = dataArray[i] * 0.7;
-                    visCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
-                }
-            }
-            initAudioVisualizer();
         }
 
         const previewData = [
