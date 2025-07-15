@@ -124,6 +124,26 @@
             100% { transform: scale(1); }
         }
         
+        .hero-background-text {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .hero-background-text span {
+            position: absolute;
+            font-size: 8vw;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            animation: drift 60s linear infinite;
+        }
+        @keyframes drift {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
+        
         .hero-content { z-index: 2; padding: 0 15px; }
         .hero h1 { font-size: 5.5em; line-height: 1.1; margin-bottom: 20px; }
         .hero h1 .char { display: inline-block; opacity: 0; transform: translateY(50px); animation: reveal-char 1s forwards; }
@@ -340,6 +360,7 @@
             .creator-card { width: 120px; height: 120px; }
             .chat-widget { width: 90vw; height: 70vh; right: 5vw; bottom: 80px; }
             .co-host-fab { bottom: 20px; right: 20px; }
+            .hero-background-text span { font-size: 12vw; }
         }
     </style>
 </head>
@@ -587,6 +608,22 @@
         const style = document.createElement('style');
         style.innerHTML = `@keyframes drift-reverse { from { transform: translateX(100%); } to { transform: translateX(-100%); } }`;
         document.head.appendChild(style);
+
+        // Mobile Nav Toggle
+        const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+        const mainNav = document.getElementById('main-nav');
+        mobileNavToggle.addEventListener('click', () => {
+            mobileNavToggle.classList.toggle('active');
+            mainNav.classList.toggle('active');
+            document.body.classList.toggle('nav-open');
+        });
+        mainNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileNavToggle.classList.remove('active');
+                mainNav.classList.remove('active');
+                document.body.classList.remove('nav-open');
+            });
+        });
 
 
         const previewData = [
