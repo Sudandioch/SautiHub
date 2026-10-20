@@ -1,0 +1,17 @@
+{
+  "name": "Sauti Hub — Home of Podcasts",
+  "short_name": "Sauti Hub",
+  "description": "Discover voices, culture and conversations worth hearing.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#11100e",
+  "theme_color": "#11100e",
+  "icons": [
+    {
+      "src": "Logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
